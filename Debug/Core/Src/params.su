@@ -1,0 +1,10 @@
+../Core/Src/params.c:42:17:_crc32	32	static
+../Core/Src/params.c:52:6:Params_Init	16	static
+../Core/Src/params.c:59:6:Params_Load	16	static
+../Core/Src/params.c:67:6:Params_Save	104	static
+../Core/Src/params.c:90:19:_dispIdx	16	static
+../Core/Src/params.c:92:6:Params_SetInt	16	static
+../Core/Src/params.c:97:6:Params_SetFloat	16	static
+../Core/Src/params.c:102:9:Params_GetInt	16	static
+../Core/Src/params.c:108:7:Params_GetFloat	16	static
+../Core/Src/params.c:114:6:Params_GetBool	16	static
