@@ -78,9 +78,11 @@ void App_Init(void) {
     HAL_Delay(100);
     Valve_OctoCalibrate();
     uint32_t t = HAL_GetTick();
-    while (g_octo_calibrating && (HAL_GetTick() - t) < 3000) {
+    while (g_octo_calibrating && (HAL_GetTick() - t) < 5000) {
         HAL_Delay(10);
         Valve_OctoRunTask();
     }
 
+    // Move to position 3 after calibration
+    Valve_OctoSetPos(3);
 }

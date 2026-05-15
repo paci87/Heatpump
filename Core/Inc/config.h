@@ -111,14 +111,18 @@ typedef struct { GPIO_TypeDef *port; uint16_t pin; } GpioPin_t;
 // ─── Octovalve ────────────────────────────────────────────────────────────────
 #define OCTO_IN1_PORT         GPIOC
 #define OCTO_IN1_PIN          GPIO_PIN_13
-#define OCTO_IN2_PORT         GPIOC
-#define OCTO_IN2_PIN          GPIO_PIN_14
 
 // Encoder pulse — remapped to PE12 (PA8 not on HOPE G474VET6 headers)
 #define OCTO_PULSE_PORT       GPIOE
 #define OCTO_PULSE_PIN        GPIO_PIN_12
 #define OCTO_PULSE_EXTI_LINE  EXTI_LINE_12
 #define OCTO_PULSE_IRQn       EXTI15_10_IRQn
+
+#define OCTO_IN1_PORT         GPIOC
+#define OCTO_IN1_PIN          GPIO_PIN_13
+// PC14 not on HOPE G474VET6 headers — remapped to PB10
+#define OCTO_IN2_PORT         GPIOB
+#define OCTO_IN2_PIN          GPIO_PIN_10
 
 // Octovalve positions (5 valid positions, pulse-count centered)
 // Spec document Part 3: 0=SERIES, 1=SERIES_RAD_BYP, 2=PARALLEL,

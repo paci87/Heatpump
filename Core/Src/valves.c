@@ -148,7 +148,7 @@ int Valve_OctoGetPos(void) { return octo_current_position; }
 //  Direct port of octoRunTask() from valves.cpp
 void Valve_OctoRunTask(void) {
     const int  POS_TOL    = OCTO_POSITION_TOLERANCE;
-    const uint32_t STALL  = 20;  // 20 × 10ms = 200ms stall timeout
+    const uint32_t STALL  = 100;  // 100 × 10ms = 1000ms stall timeout
 
     int current_pulses = g_octovalve_pulse_count;
 
