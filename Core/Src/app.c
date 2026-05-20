@@ -5,6 +5,9 @@
 #include "pumps.h"
 #include "can_comp.h"
 #include "thermal_control.h"
+#include "link.h"
+#include "fan.h"
+#include "setpoint.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern ADC_HandleTypeDef  hadc2;
@@ -21,9 +24,13 @@ static volatile uint32_t s_tick200 = 0;
 static void Ms1Task(void)   { Valve_ExpansionRunSteps(); }
 
 static void Ms10Task(void) {
-    Param_SetInt(heat_cabinl,      HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10) == GPIO_PIN_SET ? 1 : 0);
-    Param_SetInt(heat_cabinr,      HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_8)  == GPIO_PIN_SET ? 1 : 0);
-    Param_SetInt(cool_cabin,       HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9)  == GPIO_PIN_SET ? 1 : 0);
+    if (Params_GetInt(PARAM_opmode) == OPMODE_DASHBOARD) {
+        Setpoint_Apply();
+    } else {
+        Param_SetInt(heat_cabinl,      HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10) == GPIO_PIN_SET ? 1 : 0);
+        Param_SetInt(heat_cabinr,      HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_8)  == GPIO_PIN_SET ? 1 : 0);
+        Param_SetInt(cool_cabin,       HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9)  == GPIO_PIN_SET ? 1 : 0);
+    }
     Param_SetInt(preheat_req,      HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2)  == GPIO_PIN_SET ? 1 : 0);
     Param_SetInt(reservoir_level,  HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)  == GPIO_PIN_SET ? 1 : 0);
     Params_SetFloat(PARAM_pump_battery_flow,   Pumps_BatteryGetFlow());
@@ -37,6 +44,7 @@ static void Ms100Task(void) {
     Params_SetFloat(PARAM_uaux, Sensors_GetUaux());
     Sensors_Update();
     CanComp_Update();
+    Link_Process();
     thermalControl();
 }
 
@@ -72,6 +80,8 @@ void App_Init(void) {
     Sensors_Init(&hadc1, &hadc2);
     Pumps_Init(&htim4);
     CanComp_Init(&hfdcan1);
+    Fan_Init();
+    Link_Init();
     HAL_TIM_Base_Start_IT(&htim6);
     HAL_TIM_Base_Start_IT(&htim7);
     Valve_ExpansionCalibrateAll();

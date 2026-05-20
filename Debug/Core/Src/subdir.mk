@@ -10,11 +10,14 @@ C_SRCS += \
 ../Core/Src/can_comp.c \
 ../Core/Src/dma.c \
 ../Core/Src/fdcan.c \
+../Core/Src/fan.c \
 ../Core/Src/gpio.c \
+../Core/Src/link.c \
 ../Core/Src/iwdg.c \
 ../Core/Src/main.c \
 ../Core/Src/params.c \
 ../Core/Src/pumps.c \
+../Core/Src/setpoint.c \
 ../Core/Src/sensors.c \
 ../Core/Src/stm32g4xx_hal_msp.c \
 ../Core/Src/stm32g4xx_hal_timebase_tim.c \
@@ -25,6 +28,7 @@ C_SRCS += \
 ../Core/Src/temp_meas.c \
 ../Core/Src/thermal_control.c \
 ../Core/Src/tim.c \
+../Core/Src/usart.c \
 ../Core/Src/valves.c 
 
 OBJS += \
@@ -33,11 +37,14 @@ OBJS += \
 ./Core/Src/can_comp.o \
 ./Core/Src/dma.o \
 ./Core/Src/fdcan.o \
+./Core/Src/fan.o \
 ./Core/Src/gpio.o \
+./Core/Src/link.o \
 ./Core/Src/iwdg.o \
 ./Core/Src/main.o \
 ./Core/Src/params.o \
 ./Core/Src/pumps.o \
+./Core/Src/setpoint.o \
 ./Core/Src/sensors.o \
 ./Core/Src/stm32g4xx_hal_msp.o \
 ./Core/Src/stm32g4xx_hal_timebase_tim.o \
@@ -48,6 +55,7 @@ OBJS += \
 ./Core/Src/temp_meas.o \
 ./Core/Src/thermal_control.o \
 ./Core/Src/tim.o \
+./Core/Src/usart.o \
 ./Core/Src/valves.o 
 
 C_DEPS += \

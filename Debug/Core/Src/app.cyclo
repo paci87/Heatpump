@@ -1,9 +1,0 @@
-../Core/Src/app.c:21:13:Ms1Task	1
-../Core/Src/app.c:23:13:Ms10Task	6
-../Core/Src/app.c:35:13:Ms100Task	1
-../Core/Src/app.c:43:13:Ms200Task	1
-../Core/Src/app.c:47:6:HAL_TIM_PeriodElapsedCallback	7
-../Core/Src/app.c:57:6:HAL_GPIO_EXTI_Callback	2
-../Core/Src/app.c:61:6:HAL_TIM_IC_CaptureCallback	2
-../Core/Src/app.c:65:6:HAL_FDCAN_RxFifo0Callback	1
-../Core/Src/app.c:70:6:App_Init	3

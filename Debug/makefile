@@ -60,8 +60,8 @@ all: main-build
 main-build: heatpump_ctrl.elf secondary-outputs
 
 # Tool invocations
-heatpump_ctrl.elf heatpump_ctrl.map: $(OBJS) $(USER_OBJS) /Users/gerilovas/STM32CubeIDE/workspace_2.1.1/heatpump_ctrl/STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "heatpump_ctrl.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/gerilovas/STM32CubeIDE/workspace_2.1.1/heatpump_ctrl/STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="heatpump_ctrl.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+heatpump_ctrl.elf heatpump_ctrl.map: $(OBJS) $(USER_OBJS) ../STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "heatpump_ctrl.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"../STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="heatpump_ctrl.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -66,6 +66,9 @@ typedef enum {
     PARAM_opmode               =2000,
     PARAM_uaux                 =2003,
     PARAM_cpuload              =2004,
+    PARAM_cabin_setp_l         =2050,
+    PARAM_cabin_setp_r         =2051,
+    PARAM_cabin_fan_pwm        =2052,
     PARAM_COUNT,
 } ParamId_t;
 

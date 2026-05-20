@@ -1,8 +1,0 @@
-../Core/Src/sensors.c:38:14:ewma	16	static
-../Core/Src/sensors.c:51:6:Sensors_Init	16	static
-../Core/Src/sensors.c:63:21:_rawToSensorVoltage	24	static
-../Core/Src/sensors.c:70:14:_ptPressureBar	24	static
-../Core/Src/sensors.c:82:14:_ptTempC	32	static
-../Core/Src/sensors.c:92:14:_coolantLevel	24	static
-../Core/Src/sensors.c:101:6:Sensors_Update	16	static
-../Core/Src/sensors.c:165:7:Sensors_GetUaux	4	static

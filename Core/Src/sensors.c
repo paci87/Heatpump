@@ -120,9 +120,10 @@ void Sensors_Update(void) {
     // [3] PA3 → reserved (future cabin temp) — no conversion
 
     // [4] PB0 → coolant temp battery inlet (NTC 10K, direct TempMeas_Lookup)
-    Params_SetFloat(PARAM_temp_inlet_battery,
-        ewma(&f_coolant_batt,
-             TempMeas_Lookup(g_adc1Dma[ADC1_IDX_COOLANT_BATT], TEMP_TESLA_10K)));
+    float batt_in = ewma(&f_coolant_batt,
+                         TempMeas_Lookup(g_adc1Dma[ADC1_IDX_COOLANT_BATT], TEMP_TESLA_10K));
+    Params_SetFloat(PARAM_temp_inlet_battery, batt_in);
+    Params_SetFloat(PARAM_temp_battery, batt_in);
 
     // ── ADC2 channels ─────────────────────────────────────────────────────────
 
@@ -156,9 +157,12 @@ void Sensors_Update(void) {
     // [6] PC4 → uaux (12V supply monitor) — read via Sensors_GetUaux()
 
     // [7] PC5 → coolant temp powertrain inlet (NTC 10K)
-    Params_SetFloat(PARAM_temp_inlet_powertrain,
-        ewma(&f_coolant_pt,
-             TempMeas_Lookup(g_adc2Dma[ADC2_IDX_COOLANT_PT], TEMP_TESLA_10K)));
+    float pt_in = ewma(&f_coolant_pt,
+                       TempMeas_Lookup(g_adc2Dma[ADC2_IDX_COOLANT_PT], TEMP_TESLA_10K));
+    Params_SetFloat(PARAM_temp_inlet_powertrain, pt_in);
+    Params_SetFloat(PARAM_temp_powertrain, pt_in);
+    /* Until a dedicated ambient sensor is wired, mirror battery inlet for routing hints */
+    Params_SetFloat(PARAM_temp_ambient, batt_in);
 }
 
 // ─── 12V supply voltage ───────────────────────────────────────────────────────

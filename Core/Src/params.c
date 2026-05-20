@@ -1,5 +1,6 @@
 #include "main.h"
 #include "params.h"
+#include "setpoint.h"
 #include "stm32g4xx_hal.h"
 #include <string.h>
 
@@ -11,7 +12,7 @@ typedef struct { int32_t ival; float fval; } ParamEntry_t;
 
 #define SAVEABLE_COUNT  11   // IDs 0-10
 #define DISPLAY_BASE    2000
-#define DISPLAY_COUNT   50   // IDs 2000-2049
+#define DISPLAY_COUNT   53   // IDs 2000-2052
 
 static int32_t _saveable[SAVEABLE_COUNT];
 static float   _display[DISPLAY_COUNT];
@@ -53,6 +54,10 @@ void Params_Init(void) {
     // Load defaults
     for (int i = 0; i < SAVEABLE_COUNT; i++) _saveable[i] = _defaults[i];
     memset(_display, 0, sizeof(_display));
+    Params_SetInt(PARAM_cabin_setp_l, 21);
+    Params_SetInt(PARAM_cabin_setp_r, 21);
+    Params_SetInt(PARAM_cabin_fan_pwm, 0);
+    Params_SetInt(PARAM_opmode, OPMODE_GPIO);
     Params_Load();
 }
 

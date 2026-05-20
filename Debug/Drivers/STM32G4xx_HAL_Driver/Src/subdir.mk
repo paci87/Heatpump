@@ -24,6 +24,8 @@ C_SRCS += \
 ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c \
 ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c \
 ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c \
+../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c \
+../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c \
 ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_adc.c 
 
 OBJS += \
@@ -46,6 +48,8 @@ OBJS += \
 ./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.o \
 ./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.o \
 ./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.o \
+./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.o \
+./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.o \
 ./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_adc.o 
 
 C_DEPS += \
