@@ -42,6 +42,45 @@ static int   last_pulse_count = 0;
 
 static const int pos_centers[6] = {0, 0, 240, 450, 670, 950}; // index 0 unused
 
+// ─── Octovalve 2-wire Hall sensor (ADC on PA3) ───────────────────────────────
+extern uint16_t g_adc1Dma[];                // ADC1 DMA buffer (from sensors.c)
+
+#define OCTO_ADC_ON_THRESH   3550           // below = magnet present (ON)
+#define OCTO_ADC_OFF_THRESH  3850           // above = no magnet (OFF)
+
+static bool octo_sense_state  = false;      // false=OFF, true=ON (magnet)
+static bool octo_sense_primed = false;      // first reading establishes state
+static uint16_t octo_s0 = 0, octo_s1 = 0, octo_s2 = 0;  // last 3 raw samples
+
+static inline uint16_t _median3(uint16_t a, uint16_t b, uint16_t c) {
+    if (a > b) { uint16_t t = a; a = b; b = t; }
+    if (b > c) { uint16_t t = b; b = c; c = t; }
+    if (a > b) { uint16_t t = a; a = b; b = t; }
+    return b;
+}
+
+// Call every 1 ms from the TIM6 ISR. Counts OFF→ON transitions.
+void Valve_OctoSensePoll(void) {
+    octo_s0 = octo_s1;
+    octo_s1 = octo_s2;
+    octo_s2 = g_adc1Dma[ADC1_IDX_OCTO_SENSE];
+    uint16_t v = _median3(octo_s0, octo_s1, octo_s2);
+
+    if (!octo_sense_primed) {
+        octo_sense_state  = (v < OCTO_ADC_ON_THRESH);
+        octo_sense_primed = true;
+        return;
+    }
+
+    if (!octo_sense_state && v < OCTO_ADC_ON_THRESH) {
+        octo_sense_state = true;                       // falling edge → pulse
+        if (g_valve_turning_direction == CLOCKWISE) g_octovalve_pulse_count++;
+        else                                        g_octovalve_pulse_count--;
+    } else if (octo_sense_state && v > OCTO_ADC_OFF_THRESH) {
+        octo_sense_state = false;                      // release, no count
+    }
+}
+
 // ─── EXV helpers ──────────────────────────────────────────────────────────────
 static inline void _exvStep(uint8_t idx, GPIO_PinState state) {
     HAL_GPIO_WritePin(STEP_PINS[idx].port, STEP_PINS[idx].pin, state);
@@ -138,6 +177,8 @@ int Valve_OctoSetPos(int set_position) {
     if (g_octo_calibrating) return -1;
     if (set_position < 0 || set_position > 5) return -1;
     octo_target_position = set_position;
+    last_pulse_count   = g_octovalve_pulse_count;
+    last_pulse_time_ms = HAL_GetTick(); 
     Params_SetInt(PARAM_octovalve_setpoint, set_position);
     return 0;
 }
@@ -148,7 +189,7 @@ int Valve_OctoGetPos(void) { return octo_current_position; }
 //  Direct port of octoRunTask() from valves.cpp
 void Valve_OctoRunTask(void) {
     const int  POS_TOL    = OCTO_POSITION_TOLERANCE;
-    const uint32_t STALL  = 100;  // 100 × 10ms = 1000ms stall timeout
+    const uint32_t STALL  = 200;  // 200 × 10ms = 2000ms stall timeout
 
     int current_pulses = g_octovalve_pulse_count;
 
@@ -173,7 +214,9 @@ void Valve_OctoRunTask(void) {
             if ((now_ms - last_pulse_time_ms) >= (STALL * 10)) {
                 HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_RESET);
                 HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_RESET);
+                __disable_irq();
                 g_octovalve_pulse_count = 0;
+                __enable_irq();
                 g_octo_calibrating = false;
             }
         }
@@ -201,21 +244,23 @@ void Valve_OctoRunTask(void) {
             // Stalled — correct endstop positions
             HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_RESET);
             HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_RESET);
+            __disable_irq();
             if (octo_target_position == 1) g_octovalve_pulse_count = pos_centers[1];
             if (octo_target_position == 5) g_octovalve_pulse_count = pos_centers[5];
+            __enable_irq();
             octo_target_position = 0;
             return;
         }
 
         // Drive motor
-        if (position_error > 0) {  // CW
-            g_valve_turning_direction = CLOCKWISE;
-            HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_RESET);
-        } else {                   // CCW
+        if (position_error > 0) {  // need to go positive — drive CCW
             g_valve_turning_direction = COUNTERCLOCKWISE;
             HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_RESET);
             HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_SET);
+        } else {                   // need to go negative — drive CW
+            g_valve_turning_direction = CLOCKWISE;
+            HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_RESET);
         }
     } else {
         // Position reached — stop
@@ -230,9 +275,9 @@ void Valve_OctoRunTask(void) {
 void Valve_OctoCalibrate(void) {
     g_octo_calibrating = true;
     octo_target_position = 0;
-    g_valve_turning_direction = COUNTERCLOCKWISE;
-    HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_SET);
+    g_valve_turning_direction = CLOCKWISE;          // ← was COUNTERCLOCKWISE
+    HAL_GPIO_WritePin(OCTO_IN1_PORT, OCTO_IN1_PIN, GPIO_PIN_SET);   // ← swapped
+    HAL_GPIO_WritePin(OCTO_IN2_PORT, OCTO_IN2_PIN, GPIO_PIN_RESET); // ← swapped
     last_pulse_time_ms = HAL_GetTick();
     last_pulse_count   = g_octovalve_pulse_count;
 }

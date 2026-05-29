@@ -19,6 +19,7 @@ int  Valve_OctoSetPos(int target_pos); // 1-5, 0=stop
 int  Valve_OctoGetPos(void);
 void Valve_OctoRunTask(void);          // call every 10 ms
 void Valve_OctoCalibrate(void);
+void Valve_OctoSensePoll(void);   // call every 1 ms from TIM6 ISR
 
 // Called from EXTI ISR
 void Valve_OctoISR(void);

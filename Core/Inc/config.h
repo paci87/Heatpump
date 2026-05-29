@@ -195,7 +195,7 @@ typedef enum {
 #define ADC1_IDX_PT_DISC_PRES    0   // PA0 — PT_discharge pressure (high side)
 #define ADC1_IDX_PT_SC_PRES      1   // PA1 — PT_SC pressure (subcool/liquid)
 #define ADC1_IDX_COOLANT_LEVEL   2   // PA2 — coolant level (capacitive)
-#define ADC1_IDX_RESERVED_A      3   // PA3 — reserved (future cabin temp)
+#define ADC1_IDX_OCTO_SENSE      3   // PA3 — octovalve Hall sensor (2-wire current sense)
 #define ADC1_IDX_COOLANT_BATT    4   // PB0 — coolant temp battery inlet (NTC)
 #define ADC1_BUF_COUNT           5
 

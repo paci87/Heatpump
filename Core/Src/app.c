@@ -18,7 +18,11 @@ static volatile uint32_t s_tick10  = 0;
 static volatile uint32_t s_tick100 = 0;
 static volatile uint32_t s_tick200 = 0;
 
-static void Ms1Task(void)   { Valve_ExpansionRunSteps(); }
+// ─── ADC-based octovalve encoder (temporary — replace with transistor) ─────────
+// PA3 = ADC1 rank 4 = g_adc1Dma[3], threshold midpoint of 0-82 range
+#define OCTO_ADC_THRESHOLD  40
+
+static void Ms1Task(void)   { Valve_ExpansionRunSteps(); Valve_OctoSensePoll(); }
 
 static void Ms10Task(void) {
     Param_SetInt(heat_cabinl,      HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_10) == GPIO_PIN_SET ? 1 : 0);
@@ -54,9 +58,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    if (GPIO_Pin == GPIO_PIN_12) Valve_OctoISR();
-}
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM4) Pumps_TIM4_CaptureISR(htim);
@@ -73,7 +74,7 @@ void App_Init(void) {
     Pumps_Init(&htim4);
     CanComp_Init(&hfdcan1);
     HAL_TIM_Base_Start_IT(&htim6);
-    HAL_TIM_Base_Start_IT(&htim7);
+    HAL_TIM_Base_Start_IT(&htim7);   // ← IWDG now being refreshed
     Valve_ExpansionCalibrateAll();
     HAL_Delay(100);
     Valve_OctoCalibrate();
@@ -81,8 +82,8 @@ void App_Init(void) {
     while (g_octo_calibrating && (HAL_GetTick() - t) < 5000) {
         HAL_Delay(10);
         Valve_OctoRunTask();
+        HAL_IWDG_Refresh(&hiwdg);    // ← add this to feed watchdog during long calibration
     }
-
-    // Move to position 3 after calibration
+    HAL_Delay(500);
     Valve_OctoSetPos(3);
 }
